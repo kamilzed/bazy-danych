@@ -1,0 +1,115 @@
+CREATE TABLE users(
+    id int AUTO_INCREMENT PRIMARY KEY,
+    name varchar(50),
+    lName varchar(50)
+    );
+
+CREATE TABLE records (
+	id int AUTO_INCREMENT PRIMARY KEY,
+    name varchar(50),
+    price float
+);
+CREATE TABLE distributionLocation(
+    id int AUTO_INCREMENT PRIMARY key,
+    location varchar(100)
+    );
+
+
+CREATE TABLE sales
+(
+    id int AUTO_INCREMENT PRIMARY key,
+    userId int,
+    recordsId int,
+    distributionlocationId int,
+    quantity int,
+    FOREIGN key (userId) REFERENCES users(id),
+    FOREIGN key (recordsId) REFERENCES records(id),
+    FOREIGN key (distributionlocationId) REFERENCES distributionlocation(id)
+ );
+
+
+----------------------------------------------------------------------------
+
+ALTER TABLE users
+MODIFY name VARCHAR(50) NOT NULL,
+MODIFY lName VARCHAR(50) NOT NULL;
+
+
+ALTER TABLE records
+MODIFY name VARCHAR(50) NOT NULL,
+MODIFY price DECIMAL(10,2) NOT NULL CHECK (price >= 0);
+
+
+ALTER TABLE distributionLocation
+MODIFY location VARCHAR(100) NOT NULL UNIQUE;
+
+
+ALTER TABLE sales
+MODIFY quantity INT NOT NULL CHECK (quantity > 0);
+
+
+ALTER TABLE sales
+DROP FOREIGN KEY sales_ibfk_1,
+DROP FOREIGN KEY sales_ibfk_2,
+DROP FOREIGN KEY sales_ibfk_3;
+
+ALTER TABLE sales
+ADD CONSTRAINT fk_user
+  FOREIGN KEY (userId) REFERENCES users(id)
+  ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT fk_record
+  FOREIGN KEY (recordsId) REFERENCES records(id)
+  ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT fk_location
+  FOREIGN KEY (distributionlocationId) REFERENCES distributionLocation(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
+
+----------------------------------------------------------------------------
+
+INSERT INTO users (name, lName) VALUES
+('Jan', 'Kowalski'),
+('Anna', 'Nowak'),
+('Piotr', 'Wiśniewski'),
+('Kinga', 'Zielińska'),
+('Michał', 'Majewski'),
+('Ewa', 'Dąbrowska'),
+('Tomasz', 'Wójcik');
+
+INSERT INTO records (name, price) VALUES
+('Dark Side of the Moon', 89.99),
+('Thriller', 79.50),
+('Abbey Road', 95.00),
+('Back in Black', 85.00),
+('Hotel California', 92.00),
+('Rumours', 88.00),
+('Born to Run', 90.00);
+
+
+INSERT INTO distributionLocation (location) VALUES
+('Warszawa - Centrum'),
+('Kraków - Rynek'),
+('Gdańsk - Stare Miasto'),
+('Wrocław - Plac Grunwaldzki'),
+('Poznań - Wilda'),
+('Łódź - Manufaktura'),
+('Katowice - Spodek');
+
+INSERT INTO sales (userId, recordsId, distributionlocationId, quantity) VALUES
+(1, 1, 1, 3),
+(2, 3, 2, 1),
+(3, 2, 3, 5),
+(4, 5, 4, 2),
+(5, 4, 5, 7),
+(6, 6, 6, 4),
+(7, 7, 7, 6);
+
+
+SELECT u.id,s.userId, u.name, u.lName ,r.name,r.price, s.quantity,d.location
+from sales s
+JOIN users u
+JOIN records r
+JOIN distributionlocation d
+where
+r.id = s.recordsId and
+u.id = s.userId AND
+d.id = s.distributionlocationId;
